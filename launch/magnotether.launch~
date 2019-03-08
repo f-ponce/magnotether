@@ -1,0 +1,5 @@
+<launch>
+
+    <node name="magnotether" pkg="magnotether"  type="magnotether.py" />
+
+</launch>
