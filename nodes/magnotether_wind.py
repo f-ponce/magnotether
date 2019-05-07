@@ -36,6 +36,7 @@ class ImageConverter:
         self.angle_pub = rospy.Publisher('/angle_data', MsgAngleData, queue_size=10)
         self.rotated_image_pub = rospy.Publisher('/rotated_image', Image, queue_size=10)
 
+        self.contour_image_pub = rospy.Publisher('/contour_image', Image, queue_size=10)
 
         timestr = time.strftime("magnotether_%Y%m%d_%H%M%S", time.localtime())
         
@@ -129,10 +130,19 @@ class ImageConverter:
 
                     rotated_ros_image = self.bridge.cv2_to_imgmsg(angle_data['rotated_image'])
                     rotated_ros_image.header = ros_image.header
+                    
+                    contour_ros_image = self.bridge.cv2_to_imgmsg(angle_data['contour_image'])
+                    contour_ros_image.header = ros_image.header
+                    
+                    msg_angle_data = MsgAngleData()
+                    msg_angle_data.header.stamp = ros_image.header.stamp
+                    msg_angle_data.frame = self.frame_count
+                    msg_angle_data.angle = angle_deg
+                    msg_angle_data.rotated_image = rotated_ros_image
 
-                    self.angle_pub.publish(MsgAngleData(self.frame_count, angle_deg, rotated_ros_image))
+                    self.angle_pub.publish(msg_angle_data) 
                     self.rotated_image_pub.publish(rotated_ros_image)
-
+                    self.contour_image_pub.publish(contour_ros_image)
 
                     self.angle_fid.write('{0} {1}\n'.format(self.frame_count, angle_deg));
                     #save image
